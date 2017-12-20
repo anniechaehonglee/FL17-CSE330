@@ -1,0 +1,114 @@
+/*
+ * Name: Hakkyung Lee / Annie Chaehong Lee
+ * Email: hakkyung@wustl.edu / annie.lee@wustl.edu
+ * Assignment: Module 3 - group portion
+ * File name: stylesheet.css
+ * This is a css file for our php files.
+ */
+
+
+
+@import url(https://fonts.googleapis.com/css?family=Abel);
+
+/********* Global *********/
+body, body.postStory{
+  font-family: 'Abel';
+  margin: auto;
+  padding-top: 10px;
+  max-width: 90vw;
+  align-self: center;
+}
+div.container {
+  width: 100%;
+}
+div.artivle{
+  padding: 20px;
+}
+header, footer {
+  padding: 1em;
+  color: black;
+  background-color: rgba(63, 92, 125, 0.62);
+  clear: left;
+  min-height: 100px;
+  text-align: center;
+}
+/*#btn {
+  color: #000000;
+  background: rgba(#ffffff, 0);
+  border: none;
+  min-width: 50px;
+  padding: inherit;
+  text-decoration: none;
+}
+
+#btn:hover {
+  background: rgba(#888888, 0.23);
+  text-decoration: none;
+}*/
+
+
+#login {
+  float: right;
+}
+
+div.article {
+  margin-left: 170px;
+  padding: 1em;
+  overflow: hidden;
+  min-height: 500px;
+}
+/********* Main page *********/
+table, td, th {
+  border: 1px solid rgb(209, 209, 209);
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+#searchuser{
+  width: 200px;
+}
+
+/********* Login Page *********/
+body.login {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+form.login {
+  min-width: 250px;
+  margin: auto;
+  padding: 20px;
+}
+
+/********* Post Story *********/
+.postStory{
+  display: flex;
+  margin: auto;
+  padding: inherit;
+  flex-direction: column;
+}
+
+#title {
+  min-width: 80vw;
+}
+
+#contents {
+  min-width: 80vw;
+  min-height: 500px;
+}
+
+/********* Contents Page *********/
+#comment{
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+}
+#commentinput{
+  min-width: 300px;
+}
+.comments{
+}
+.contents{
+  min-height: 300px;
+}
