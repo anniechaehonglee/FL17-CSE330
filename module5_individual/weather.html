@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8"/>
+  <title>My Web Page</title>
+  <style type="text/css">
+    body{
+      width: 300px;
+      margin: 0 auto;
+      padding: 10vw;
+      font:12px/16px Verdana, sans-serif;
+    }
+    div{
+      margin: auto;
+    }
+    div#main{
+      background-color: #FFF;
+      margin: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    div.weather{
+      width: 300px;
+      height: 150px;
+      border: black solid;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    div.weather-loc{
+      display: flex;
+      flex-direction: row;
+    }
+    p{
+      margin: auto;
+    }
+    strong{
+      margin:auto;
+    }
+    button{
+      margin:auto;
+      margin-top: 10px;
+    }
+    img{
+      margin: auto;
+      width: 50px;
+      height: 50px;
+    }
+  </style>
+</head>
+<body><div id="main">
+
+  <div class="weather" id="weatherWidget">
+    <div class="weather-loc" id="location"></div>
+    <div class="weather-humidity"></div>
+    <div class="weather-temp"></div>
+    <img class="weather-tomorrow" />
+    <img class="weather-dayaftertomorrow" / />
+  </div>
+  <button id="btn">Update</button>
+
+  <script type="text/javascript">
+  function fetchWeather(event) {
+    //AJAX request:
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", "https://classes.engineering.wustl.edu/cse330/content/weather_json.php", true);
+    xmlHttp.addEventListener("load", fetchWeatherCallback, false);
+    xmlHttp.send(null);
+  }
+
+  function fetchWeatherCallback(event) {
+    var jsonData = JSON.parse(event.target.responseText);
+
+    //location:
+    var city = jsonData.location.city;
+    var state = jsonData.location.state;
+    //adding strong tag:
+    var myNode = document.getElementById("location");
+    while (myNode.firstChild) {
+      myNode.removeChild(myNode.firstChild);
+    }
+    var strong = document.createElement("strong");
+    var text = document.createTextNode(city);
+    strong.appendChild(text);
+    document.getElementById("location").appendChild(strong);
+
+    var para = document.createElement("p");
+    var ptext = document.createTextNode(state);
+    para.appendChild(ptext);
+    document.getElementById("location").appendChild(para);
+
+    // document.getElementsByClassName("weather-loc")[0].textContent = state;
+
+    //temperature:
+    var temperature = jsonData.wind.chill;
+    document.getElementsByClassName("weather-temp")[0].textContent = temperature + "°F";
+
+    //humidity:
+    var humidity = jsonData.atmosphere.humidity;
+    document.getElementsByClassName("weather-humidity")[0].textContent = humidity + "%";
+
+    //get tomorrow image code:
+    var tomorrow = jsonData.tomorrow.code;
+    var tomorrowString = "http://us.yimg.com/i/us/nws/weather/gr/" + tomorrow + "ds.png";
+    document.getElementsByClassName("weather-tomorrow")[0].src = tomorrowString;
+
+    //get the day after tomorrow image code:
+    var dayafter = jsonData.dayafter.code;
+    var datString = "http://us.yimg.com/i/us/nws/weather/gr/" + dayafter + "ds.png";
+    document.getElementsByClassName("weather-dayaftertomorrow")[0].src = datString;
+
+  }
+
+  //sensitive to changes:
+  document.addEventListener("DOMContentLoaded", fetchWeather, false);
+  document.getElementById("btn").addEventListener("click", fetchWeather, false);
+
+  </script>
+
+</div></body>
+</html>

@@ -1,0 +1,512 @@
+<!--
+  Name: Hakkyung Lee / Annie Chaehong Lee
+  Email: hakkyung@wustl.edu / annie.lee@wustl.edu
+  Assignment: Module 6 - group portion
+  File name: client.html                       -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WashU Talks</title>
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Roboto);
+    * {
+      font-family: 'Roboto';
+    }
+    .login{
+      position: absolute;
+      margin: auto;
+      top: 40%;
+      right: 0;
+      bottom: 60%;
+      left: 0;
+      width: 200px;
+      height: 100px;
+    }
+    .main{
+      display:none;
+      height: 85vh;
+      width: inherit;
+    }
+    .header{
+      padding: 1em;
+      border: black solid 2px;
+    }
+    .lobby{
+      padding: 1em;
+      border: black solid 2px;
+    }
+
+    /*** CHAT WINDOW STYLE ***/
+    .rooms-containter{
+      font-size: 0.7em;
+      max-width: 400px;
+      height: 70vh;
+    }
+    .chatlog{
+      color: white;
+      border: black solid 1px;
+      background-color: #353638;
+      width: 96%;
+      height: 300px;
+      overflow-y: scroll;
+    }
+    .msg-input{
+      position: relative;
+      padding-top: 10px;
+      bottom: 0px;
+      width: 96%;
+      height: 70px;
+    }
+    #message_input{
+      margin: auto;
+      width: 80%;
+      height: 60px;
+    }
+    #send{
+      margin: auto;
+      height: 60px;
+      width: 15%;
+    }
+    #chatlog{
+      height:auto;
+    }
+    #roompw{
+      display: none;
+    }
+    .scrtmsg{
+      color: rgb(159, 219, 134);
+    }
+    /*** ADD EVENT MODAL STYLE ***/
+    /* style imported from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_modal */
+    .modal{
+      display: none;
+      position: fixed;
+      z-index: 11;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content{
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      max-width: 40%;
+      min-width: 250px;
+      min-height: 500px;
+      max-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .close {
+      color: #aaaaaa;
+      float: right;
+      align-self: flex-end;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /*** DROP DOWN MENU ***/
+    /* style imported from https://www.w3schools.com/howto/howto_js_dropdown.asp */
+    .dropbtn {
+      color: black;
+      cursor: pointer;
+    }
+    .dropdown-content {
+      display: none;
+      width: 100px;
+      font-size: 12px;
+      background-color: #f9f9f9;
+      overflow: auto;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      right: 0;
+      z-index: 1;
+    }
+    .dropdown-content a {
+      color: black;
+      padding: 2px;
+      text-decoration: none;
+      display: block;
+    }
+    .dropdown a:hover {
+      background-color: #f1f1f1
+    }
+    .show {
+      display:block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src = "/socket.io/socket.io.js"></script>
+    <script>
+      // initial connection:
+      var socketio = io.connect();
+
+      //set username when enter
+      function setUsername(){
+
+        $(".login").fadeOut();
+        $(".main").fadeIn();
+        var username = document.getElementById("usernameInput").value;
+        socketio.emit("username", {username: username});
+      }
+
+      // refresh lobby when change occurs:
+      socketio.on("rooms_to_client", function(data){
+        
+        $(".lobby").empty();
+        if(data.length != 1){
+          
+          // appending DOM to .lobby
+          for(var i = 1; i < data.length; ++i){
+            
+            var room_btn = "<button id=\"room" + i + "-btn\" onclick=\"checkPrivate(" + i + ")\">" + data[i].roomName + "</button>";
+            $(".lobby").append(room_btn);
+          }
+        }
+      });
+
+      //create a new room
+      function newRoom(){
+      
+        var roomName = $("#roomName").val();
+        var roomType = $("#roomType").val();
+
+        if(roomType == "private"){
+
+          roomType = $("#roompw").val();
+        }
+
+        socketio.emit("create_room_to_server", {roomName:roomName, roomType:roomType, owner: "" });
+        $("#999Modal").fadeOut();
+      }
+
+      // when room is made, automatically enters the room:
+      socketio.on("newroom_callback", function(num){
+        
+        checkPrivate(num);
+      });
+
+      //join a room
+      function joinRoom(num){
+        
+        openPopUp(0);
+        socketio.emit("join_room_to_server", num);
+
+        var newclick = 'leaveRoom(' + num + ')';
+        $(".close").attr('onclick', newclick);
+
+        var newChatlog = 'chatlog' + num;
+        $(".chatlog").attr('id', newChatlog);
+
+        $(".rooms-container").attr('id', num);
+      }
+
+      //when leaves a room
+      function leaveRoom(num){
+        
+        closePopUp(0);
+        $(".chatlog").empty();
+        socketio.emit("leave_room_to_server", num);
+      }
+
+      // refresh the list of users in a room:
+      socketio.on("list_of_users", function(data){
+
+        var num = data['num'];
+        var users = data['users'];
+        if($(".rooms-container").attr('id') == num){
+          
+          $(".usrs").empty();
+          for(var i = 0; i < users.length; ++i){
+            
+            var curr = users[i];
+            var user = "<button class=\"dropbtn\" onclick=\"dropdown('" + curr['socketid'] + "')\">" + curr['username'] + "</button>";
+            $(".usrs").append(user);
+          }
+        }
+        //console.log(num);
+        //console.log(users);
+      });
+
+      //check if an entering room is private and if yes, ask for a pw:
+      function checkPrivate(num){
+        
+        socketio.emit("private_check_to_server", num);
+      }
+
+      socketio.on("private_check_to_client", function(data){
+
+        var private_checker = data["isPrivate"];
+        var pw = data["pw"];
+        if(private_checker){
+
+          var pw_input = prompt("Enter the password");
+          
+          if(pw_input == pw){
+
+            joinRoom(data["num"]);
+          }
+          else{
+
+            alert("Wrong password");
+          }
+        }
+        else{
+
+          joinRoom(data["num"]);
+        }
+      });
+
+      //when a user creates a room, if private type is selected, the password input box appears
+      function roomTypeCheck(){
+        var type = $("#roomType").val();
+        if(type == "private"){
+          
+          $("#roompw").show();
+        }
+        else{
+          
+          $("#roompw").hide();
+        }
+      }
+
+      // check if you are blacklisted from the room:
+      socketio.on('ban_alert_to_client', function(){
+
+        alert("You are permanently banned from this room.");
+        closePopUp(0);
+      });
+
+
+      // send / get messages:
+      function sendMessage(){
+        
+        var msg = document.getElementById("message_input").value;
+        socketio.emit("message_to_server", msg);
+        $("#message_input").val("");
+      }
+
+      socketio.on("message_to_client", function(data){
+        
+        var id = "#chatlog" + data['id'];
+        var msg = "<p>" + data['username'] + " : " + data['message'] + "</p>"
+        $(id).append(msg);
+      });
+
+      // Dropdown js: referenced https://www.w3schools.com/howto/howto_js_dropdown.asp
+
+      // global var keeping track of pressed user
+      var socketid = "";        
+
+      // When the user clicks on the button, toggle between hiding and showing the dropdown content:
+      function dropdown(id) {
+        
+        $("#myDropdown").show();
+        socketid = id;
+      }
+
+      // Close the dropdown if the user clicks outside of it:
+      window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+
+          var dropdowns = $(".dropdown-content");
+          for (var i = 0; i < dropdowns.length; i++) {
+        
+            var openDropdown = dropdowns[i];
+            $(openDropdown).hide();
+          }
+        }
+      }
+
+      //one time ban case
+      function oneTimeBan(){
+      
+        var num = $(".rooms-container").attr('id');
+        socketio.emit("oneTimeBan_to_server", {bannee : socketid, num:num});
+        socketid = "";
+      }
+
+      function oneTimeBanCallBack(num){
+        
+        closePopUp(0);
+        $(".chatlog").empty();
+        alert("You are banned from this room (one time).");
+      }
+
+      // cases of ban
+      socketio.on("oneTimeBan_to_client", function(data){
+
+        var num = data["num"];
+        if(num == 9999){
+
+          alert("You are not authorized to ban users.");
+        }
+        else if(num == 9998){
+
+          alert("You cannot ban yourself.");
+        }
+        else{
+
+          oneTimeBanCallBack(num);
+        }
+      });
+
+      //permanent ban case
+      function permanentBan(){
+        
+        var num = $(".rooms-container").attr('id');
+        socketio.emit("permanentBan_to_server", {bannee : socketid, num:num});
+        socketid = "";
+      }
+
+      function permanentBanCallBack(num){
+      
+        closePopUp(0);
+        $(".chatlog").empty();
+        alert("You are banned from this room (permanent).");
+      }
+
+      //same as above
+      socketio.on("permanentBan_to_client", function(data){
+
+        var num = data["num"];
+        if(num == 9999){
+      
+          alert("You are not authorized to ban users.");
+        }
+        else if(num == 9998){
+      
+          alert("You cannot ban yourself.");
+        }
+        else{
+      
+          permanentBanCallBack(num);
+        }
+      });
+
+      //send secret message
+      function secretMsg(){
+        
+        var msg = prompt("enter your message.");
+        socketio.emit("secret_msg_to_server", {socketid:socketid, msg:msg});
+        socketid ="";
+      }
+
+      socketio.on("secret_message_to_client", function(data){
+        
+        var id = "#chatlog" + data['id'];
+        var msg = "<p><div class=\"scrtmsg\">(secret message) " + data['username'] + " : " + data['message'] + "</div></p>"
+        $(id).append(msg);
+      });
+
+      //opens the room popup modal
+      function openPopUp(id){
+        
+        var arg = "#" + String(id) + "Modal";
+        if(String(id) == "999"){
+        
+          var newclick = 'closePopUp(999)';
+          $(".close").attr('onclick', newclick);
+        }
+        $(arg).fadeIn();
+      }
+
+      //closes the room modal
+      function closePopUp(id){
+      
+        var arg = "#" + String(id) + "Modal";
+        $(arg).fadeOut();
+      }
+
+    </script>
+  </header>
+
+  <!-- login -->
+  <!-- referenced https://github.com/socketio/socket.io/blob/master/examples/chat/public/index.html -->
+  <div class="login">
+    <h3>What's your nickname?</h3>
+    <input id="usernameInput" type="text" maxlength="14" />
+    <button onclick = "setUsername()">enter</button>
+  </div>
+
+  <div class="main">
+
+    <div class="header">
+      <p>Welcome!</p>
+      <button onclick="openPopUp(999)">Make a Room</button>
+    </div>
+
+
+    <!-- Pop up window for making a new room -->
+    <div class="modal" id="999Modal">
+      <div class="modal-content">
+        <span class="close" onclick="closePopUp(999)">&times;</span>
+        <p>Make a new room</p>
+        <input type="text" id="roomName" placeholder="What is your room name?" />
+        <select name="roomType" id="roomType" onchange="roomTypeCheck()">
+          <option value="public">public</option>
+          <option value="private">private</option>
+        </select>
+        <input id="roompw" type="password" placeholder="type password here"/>
+        <button onclick="newRoom()">Make</button>
+      </div>
+    </div>
+
+
+    <!-- list of lobby on the main page: append as new one gets added -->
+    <div class="lobby">
+      <button id="room1-btn" onclick="joinRoom(998)">example room</button>
+    </div>
+
+
+    <!-- append rooms: display-hidden divs -->
+    <div class="rooms-container">
+
+      <!-- example template: pop up modal for rooms -->
+      <div class="modal" id="0Modal">
+        <div class="modal-content">
+          <span class="close" onclick="leaveRoom(0)">&times;</span>
+          <div class="usrs">
+
+            <!-- user1 dropdown template -->
+            <button class="dropbtn">user1</button>
+
+          </div>
+          <div id="myDropdown" class="dropdown-content">
+            <a href="#one_time_ban" onclick="oneTimeBan()">One time ban</a>
+            <a href="#permanent_ban" onclick="permanentBan()">Permanent ban</a>
+            <a href="#secret_msg" onclick="secretMsg()">Secret message</a>
+          </div>
+
+          <div class="chatlog">
+          </div>
+          <div class="msg-input">
+            <input type = "text" id = "message_input">
+            <button id="send" onclick="sendMessage()">send</button>
+          </div>
+        </div>
+      </div>
+      <!-- example modal ends here -->
+
+    </div>
+  </div>
+
+</body>
+</html>

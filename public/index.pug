@@ -1,0 +1,197 @@
+// * Name: Hakkyung Lee / Annie Chaehong Lee
+// * Email: hakkyung@wustl.edu / annie.lee@wustl.edu
+// * Assignment: Module CP
+// * File name: index.pug
+
+
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    title MyMuzicMaker
+    link(rel='stylesheet', href='css/style.css')
+  header
+    h1 My Muzic Maker
+  body
+    #start.button start
+    #stop.button stop
+    #save.button
+      | post your work!
+    //
+      <div class = "button" id = "works">
+      listen to other users' work!
+      </div>
+    #temp click here to view
+    table#works
+      tr
+        th Username
+        th Title
+        th Coords
+    // Pop up window for saving
+    .modal
+      .modal-content
+        span.close ×
+        p post your work!
+        input#title(type='text', placeholder='Work Title')
+        input#id(type='text', placeholder='ID')
+        button(onclick='save()') Post
+    #grid
+      #1.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #2.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #3.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #4.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #5.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #6.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #7.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #8.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #9.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #10.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #11.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+      #12.col
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+        .note
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.5/howler.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js')
+    script(src='js/index.js')

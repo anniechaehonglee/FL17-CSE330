@@ -1,0 +1,151 @@
+
+<!--
+  Name: Annie Chaehong Lee
+  Email: annie.lee@wustl.edu
+  Assignment: Module 5 - individual portion
+  File name: calculator.html
+-->
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8"/>
+  <title>JavaScript Calculator</title>
+  <style type="text/css">
+    body{
+      width: 760px;
+      margin: 0 auto;
+      padding: 10vw;
+      background: rgb(113, 0, 0);
+      font:12px/16px Verdana, sans-serif;
+    }
+    div#main{
+      background-color: #FFF;
+      margin: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    div#title{
+      font-size: 25px;
+      margin: auto;
+      padding: 10px;
+      margin-bottom: 50px;
+    }
+    div.result{
+      margin: auto;
+      margin-top: 20px;
+      width: 300px;
+      min-height: 150px;
+      border: solid black 1px;
+    }
+    table{
+      margin: auto;
+    }
+    input{
+      margin: 10px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body><div id="main">
+  <div id="title">
+    JavaScript Calculator
+  </div>
+
+  <table>
+    <tr>
+      <td>
+        <input type="text" name="var1" placeholder="x" id="x"><br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="radio" name="op" value="add" id="op"> +
+        <input type="radio" name="op" value="subtract" id="op"> -
+        <input type="radio" name="op" value="multiply" id="op"> x
+        <input type="radio" name="op" value="divide" id="op"> ÷ <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" name="var2" placeholder="y" id="y"><br />
+      </td>
+    </tr>
+  </table>
+
+  <div class="result">
+    RESULT:<br />
+    <output id="result">
+
+    </output>
+  </div>
+
+</div>
+<script type="text/javascript">
+
+var op = document.getElementsByName("op");
+
+//extracts data:
+function extractData(){
+  var x = parseFloat(document.getElementById("x").value);
+  var y = parseFloat(document.getElementById("y").value);
+
+  var operator = null;
+  for (var i = 0; i < op.length; ++i){
+    if(op[i].checked){
+      operator = op[i].value;
+      break;
+    }
+  }
+  calculate(x, y, operator);
+}
+
+//function for calculation:
+function calculate(x, y, op){
+  var result;
+  var temp;
+
+  if(x === "" || y === "" || op === null){
+    result = "One or more values are missing.";
+  }
+
+  else{
+    if(op == "add"){
+      temp = x + y;
+      result = temp + "";
+    }
+    else if(op == "subtract"){
+      temp = x - y;
+      result = temp + "";
+    }
+    else if(op == "multiply"){
+      temp = x * y;
+      result = temp + "";
+    }
+    else if(op == "divide"){
+      if(y === 0){
+        result = "Cannot divide by zero.";
+      }
+      else{
+        temp = x / y;
+        result = temp + "";
+      }
+    }
+  }
+
+  document.getElementById("result").textContent = result;
+}
+
+//sensitive to changes:
+document.getElementById("x").addEventListener("change",extractData,false);
+document.getElementById("y").addEventListener("change",extractData,false);
+for(var i=0; i<op.length; i++) {
+  op[i].addEventListener("click",extractData,false);
+}
+
+</script>
+
+
+</body>
+</html>
